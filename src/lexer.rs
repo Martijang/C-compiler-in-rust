@@ -45,8 +45,6 @@ impl Lexer{
                     }else{
                         tvec.push(Token::Identifier(word));
                     }
-                }else{
-                    tvec.push(Token::Eof);
                 }
             }else if c.is_ascii_digit(){
                 if let Some(num) = self.get_next_number(){
@@ -55,8 +53,6 @@ impl Lexer{
                     }else{
                         tvec.push(Token::Interger(num));
                     }
-                }else{
-                    tvec.push(Token::Eof);
                 }
             }else if c == '+' || c == '-' ||
                     c == '*' || c == '/' {
@@ -75,6 +71,7 @@ impl Lexer{
                 self.position+=1;
             }
         }
+        tvec.push(Token::Eof);
         tvec
     }
 
