@@ -26,6 +26,6 @@ output:
 ### What has been done:
 - [OK] parsing cli args
 - [OK] lexer 
-- [] parser
+- [YET] parser
 - [] IR generation
 - [] asm translation
