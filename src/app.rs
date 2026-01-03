@@ -2,14 +2,9 @@ use clap::Parser;
 use anyhow::{Ok, Result, anyhow};
 use std::{fs, path::Path};
 
-#[path ="lexer.rs"]
-mod lexer;
-use lexer::Lexer;
+use crate::{parser ,lexer::Lexer};
 
-#[path ="lexer.rs"]
-mod parser;
-
-/// ec lang compiler
+/// c lang compiler in rust
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]
 struct Cli{
@@ -32,10 +27,8 @@ impl App{
     pub fn run(&mut self) -> Result<()>{
         let content = self.get_input_file()?;
         let mut lexer = Lexer::new(content);
-        let tvec = lexer.run();
-        for t in tvec{
-            println!("{t:?}")
-        }
+        let parser = parser::Parser::new();
+        lexer.run();
         Ok(())
     }
 

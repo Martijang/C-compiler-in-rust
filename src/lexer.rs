@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token{
     Keywords(String),
     Identifier(String),
@@ -14,21 +14,20 @@ pub enum Token{
     Eof,
 }
 
-
 pub struct Lexer{
     input: String,
     position: usize,
-    keywords: HashMap<&'static str, Token>
+    keywords: HashMap<&'static str, Token>,
+    tvec: Vec<Token>
 }
 
 impl Lexer{
     pub fn new(input: String) -> Self{
-        Lexer { input: input, position: usize::default() , keywords: HashMap::new() }
+        Lexer { input: input, position: usize::default() , keywords: HashMap::new(), tvec: Vec::new() }
     }
 
-    pub fn run(&mut self) -> Vec<Token>{
+    pub fn run(&mut self){
         self.init_keywords();
-        let mut tvec: Vec<Token> = Vec::new();
 
         while self.position < self.input.len(){
             let c = char::from(self.input.as_bytes()[self.position]);
@@ -41,40 +40,43 @@ impl Lexer{
             if c.is_alphabetic() {
                 if let Some(word) = self.get_next_word(){
                     if self.keywords.contains_key(&word as &str) {
-                        tvec.push(Token::Keywords(word));
+                        self.tvec.push(Token::Keywords(word));
                     }else{
-                        tvec.push(Token::Identifier(word));
+                        self.tvec.push(Token::Identifier(word));
                     }
                 }
             }else if c.is_ascii_digit(){
                 if let Some(num) = self.get_next_number(){
                     if num.contains("."){
-                        tvec.push(Token::Float(num));
+                        self.tvec.push(Token::Float(num));
                     }else{
-                        tvec.push(Token::Interger(num));
+                        self.tvec.push(Token::Interger(num));
                     }
                 }
             }else if c == '+' || c == '-' ||
                     c == '*' || c == '/' {
-                    tvec.push(Token::Op(c));
+                    self.tvec.push(Token::Op(c));
                     self.position+=1;
             }else if c == '{' || c == '}' ||
                      c == '(' || c == ')'
                 {
-                    tvec.push(Token::Punctuator(c));
+                    self.tvec.push(Token::Punctuator(c));
                     self.position+=1;
                 }else if c == ';'{
-                    tvec.push(Token::Semicolon(c));
+                    self.tvec.push(Token::Semicolon(c));
                     self.position+=1;
                 }else{
-                tvec.push(Token::Uknown(c));
+                self.tvec.push(Token::Uknown(c));
                 self.position+=1;
             }
         }
-        tvec.push(Token::Eof);
-        tvec
+        self.tvec.reverse(); //Eof will appear first
+        
     }
-
+    pub fn get_tvec(&mut self) -> &Vec<Token>{
+        &self.tvec
+    }
+    
     fn get_next_word(&mut self) -> Option<String> {
         let start = self.position;
 
@@ -88,6 +90,14 @@ impl Lexer{
         }
 
         Some(self.input[start..self.position].to_string())
+    }
+
+    pub fn peek(&mut self) -> Token{
+        self.tvec.last().unwrap_or(&Token::Eof).clone()
+    }
+
+    pub fn next(&mut self) -> Token{
+        self.tvec.pop().unwrap_or(Token::Eof)
     }
     fn get_next_number(&mut self) -> Option<String> {
         let start = self.position;
@@ -106,22 +116,24 @@ impl Lexer{
                 has_decimal = true;
             }
 
-        self.position += c.len_utf8();
-    }
+            self.position += c.len_utf8();
+        }
 
-    Some(self.input[start..self.position].to_string())
-}
+        Some(self.input[start..self.position].to_string())
+    }
     fn init_keywords(&mut self){
         self.keywords.insert("int", Token::Keywords(String::from("int")));
         self.keywords.insert("return", Token::Keywords(String::from("return")));
     }
 }
 
+
 #[test]
 fn lexer_test(){
     let mut lexer = Lexer::new(String::from("int main(){return 0;}"));
-    let tok = lexer.run();
-    let v = vec![
+    lexer.run();
+    let tok = lexer.get_tvec();
+    let mut v = vec![
     Token::Keywords(String::from("int")),
     Token::Identifier(String::from("main")),
     Token::Punctuator('('),
@@ -130,7 +142,7 @@ fn lexer_test(){
     Token::Keywords(String::from("return")),
     Token::Interger(String::from("0")),
     Token::Semicolon(';'),
-    Token::Punctuator('}'),
-    Token::Eof];
-    assert_eq!(tok, v)
+    Token::Punctuator('}')];
+    v.reverse();
+    assert_eq!(tok, &v)
 }
