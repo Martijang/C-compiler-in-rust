@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token{
     Keywords(String),
     Identifier(String),
@@ -115,4 +115,22 @@ impl Lexer{
         self.keywords.insert("int", Token::Keywords(String::from("int")));
         self.keywords.insert("return", Token::Keywords(String::from("return")));
     }
+}
+
+#[test]
+fn lexer_test(){
+    let mut lexer = Lexer::new(String::from("int main(){return 0;}"));
+    let tok = lexer.run();
+    let v = vec![
+    Token::Keywords(String::from("int")),
+    Token::Identifier(String::from("main")),
+    Token::Punctuator('('),
+    Token::Punctuator(')'),
+    Token::Punctuator('{'),
+    Token::Keywords(String::from("return")),
+    Token::Interger(String::from("0")),
+    Token::Semicolon(';'),
+    Token::Punctuator('}'),
+    Token::Eof];
+    assert_eq!(tok, v)
 }

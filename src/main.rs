@@ -4,6 +4,6 @@ mod app;
 use app::App;
 
 fn main() -> Result<()>{
-    App::run()?;
+    App::new().run()?;
     Ok(())
 }

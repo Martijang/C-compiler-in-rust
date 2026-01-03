@@ -2,10 +2,12 @@ use clap::Parser;
 use anyhow::{Ok, Result, anyhow};
 use std::{fs, path::Path};
 
-use crate::app::lexer::Lexer;
-
 #[path ="lexer.rs"]
 mod lexer;
+use lexer::Lexer;
+
+#[path ="lexer.rs"]
+mod parser;
 
 /// ec lang compiler
 #[derive(Parser, Debug)]
@@ -20,16 +22,15 @@ pub struct App{
 }
 
 impl App{
-    fn new() -> Self{
+    pub fn new() -> Self{
         let cli = Cli::parse();
         App { 
             input_file: cli.input_file 
         }
     }
 
-    pub fn run() -> Result<()>{
-        let app = App::new();
-        let content = app.get_input_file()?;
+    pub fn run(&mut self) -> Result<()>{
+        let content = self.get_input_file()?;
         let mut lexer = Lexer::new(content);
         let tvec = lexer.run();
         for t in tvec{
