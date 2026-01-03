@@ -11,6 +11,7 @@ pub enum Token{
     Punctuator(char),
     Semicolon(char),
     Uknown(char),
+    Equal,
     Eof,
 }
 
@@ -26,7 +27,7 @@ impl Lexer{
         Lexer { input: input, position: usize::default() , keywords: HashMap::new(), tvec: Vec::new() }
     }
 
-    pub fn run(&mut self){
+    pub fn run(&mut self) -> &Vec<Token>{
         self.init_keywords();
 
         while self.position < self.input.len(){
@@ -57,6 +58,9 @@ impl Lexer{
                     c == '*' || c == '/' {
                     self.tvec.push(Token::Op(c));
                     self.position+=1;
+            }else if c == '='{
+                self.tvec.push(Token::Equal);
+                self.position+=1;
             }else if c == '{' || c == '}' ||
                      c == '(' || c == ')'
                 {
@@ -70,10 +74,7 @@ impl Lexer{
                 self.position+=1;
             }
         }
-        self.tvec.reverse(); //Eof will appear first
-        
-    }
-    pub fn get_tvec(&mut self) -> &Vec<Token>{
+        //self.tvec.reverse(); //Eof will appear first
         &self.tvec
     }
     
@@ -83,7 +84,7 @@ impl Lexer{
         while self.position < self.input.len() {
             let c = self.input[self.position..].chars().next()?;
             if c.is_alphanumeric() {
-                self.position += c.len_utf8(); // advance by char length
+                self.position += c.len_utf8();
             } else {
                 break;
             }
@@ -92,9 +93,9 @@ impl Lexer{
         Some(self.input[start..self.position].to_string())
     }
 
-    pub fn peek(&mut self) -> Token{
-        self.tvec.last().unwrap_or(&Token::Eof).clone()
-    }
+    // pub fn peek(&mut self) -> Token{
+    //     self.tvec.last().unwrap_or(&Token::Eof).clone()
+    // }
 
     pub fn next(&mut self) -> Token{
         self.tvec.pop().unwrap_or(Token::Eof)
@@ -124,6 +125,8 @@ impl Lexer{
     fn init_keywords(&mut self){
         self.keywords.insert("int", Token::Keywords(String::from("int")));
         self.keywords.insert("return", Token::Keywords(String::from("return")));
+        self.keywords.insert("float", Token::Keywords(String::from("flaot")));
+
     }
 }
 
@@ -131,9 +134,8 @@ impl Lexer{
 #[test]
 fn lexer_test(){
     let mut lexer = Lexer::new(String::from("int main(){return 0;}"));
-    lexer.run();
-    let tok = lexer.get_tvec();
-    let mut v = vec![
+    let tvec = lexer.run();
+    let v = vec![
     Token::Keywords(String::from("int")),
     Token::Identifier(String::from("main")),
     Token::Punctuator('('),
@@ -143,6 +145,6 @@ fn lexer_test(){
     Token::Interger(String::from("0")),
     Token::Semicolon(';'),
     Token::Punctuator('}')];
-    v.reverse();
-    assert_eq!(tok, &v)
+    //v.reverse();
+    assert_eq!(tvec, &v)
 }

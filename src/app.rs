@@ -27,8 +27,9 @@ impl App{
     pub fn run(&mut self) -> Result<()>{
         let content = self.get_input_file()?;
         let mut lexer = Lexer::new(content);
-        let parser = parser::Parser::new();
         lexer.run();
+        let mut parser = parser::Parser::new();
+        parser.parse_expression(&mut lexer)?;
         Ok(())
     }
 
