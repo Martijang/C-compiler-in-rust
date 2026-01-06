@@ -125,7 +125,9 @@ impl Lexer{
     fn init_keywords(&mut self){
         self.keywords.insert("int", Token::Keywords(String::from("int")));
         self.keywords.insert("return", Token::Keywords(String::from("return")));
-        self.keywords.insert("float", Token::Keywords(String::from("flaot")));
+        self.keywords.insert("float", Token::Keywords(String::from("float")));
+        self.keywords.insert("if", Token::Keywords(String::from("if")));
+        self.keywords.insert("else", Token::Keywords(String::from("else")));
 
     }
 }

@@ -3,8 +3,7 @@
 My toy porject to create C compiler in rust
 
 --- 
-    WARN: current lexer does not support all the keywords in C
-          Current parser has some minor issuse.    
+    WARN: Failed porject   
 ---
 
 ## todo:

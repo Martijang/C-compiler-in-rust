@@ -28,8 +28,8 @@ impl App{
         let content = self.get_input_file()?;
         let mut lexer = Lexer::new(content);
         lexer.run();
-        let mut parser = parser::Parser::new();
-        parser.parse_expression(&mut lexer)?;
+//        let mut parser = parser::Parser::new();
+//        parser.parse_expression(&mut lexer)?;
         Ok(())
     }
 
